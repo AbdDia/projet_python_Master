@@ -18,7 +18,7 @@ class Donnes:
         self.texte = texte
         self.docs_bruts=[]
         self.dictionnaire = {'trim1_2020':[],'trim2_2020':[],'trim3_2020':[],'trim4_2020':[],'trim1_2021':[],'trim2_2021':[],'trim3_2021':[],'trim4_2021':[]}
-        
+    # Fonction     
     def get_type(self):
         return self.type
     

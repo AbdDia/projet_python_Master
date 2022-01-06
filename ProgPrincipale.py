@@ -20,7 +20,7 @@ document=p.joindre(Entre)
 #print(document)
 
 
-######################## Frequence Mot dans le Corpus #########################"
+#### Frequence Mot dans le Corpus 
 ## affichage de l'histogramme des mots
 p.hist = p.process_file(document)
 print(p.hist)
@@ -33,17 +33,18 @@ print('Les mots les plus fréquents sont :')
 for freq, mot in t[:num]:
     print(mot, freq, sep='\t')   
     
-######################## Evolution du Mot au cours des années #########################
+#### Evolution du Mot au cours des années 
 
 ## Listes des mots les plus fréquents (choisi 5 mots)
 Listes_mots=['detection','face','videos','image','methods']
 Datas=p.Séparation(Listes_mots)
 #print(Datas)
 
-#############"" Frequence des termes de la liste de mots #######################
+#### Frequence des termes de la liste de mots 
 
+## découpage du document par mot
 decoupe=document.split(' ')
-
+## dictionnaire de chaque mot avec leur fréquence
 numOfWordsA = dict.fromkeys(decoupe, 0)
 for word in decoupe:
     numOfWordsA[word] += 1
