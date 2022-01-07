@@ -4,21 +4,25 @@ Created on Mon Jan  3 20:07:43 2022
 
 @author: adjou
 """
+# Importation des Libraries
 import string
+## importation de re pour la recherche de mots dans le texte
 import re
-import urllib, urllib.request, _collections
+## Pour accéder à l'url de la page et récupérer les données
+import urllib, urllib.request
 import xmltodict
 import datetime
 ## Construction de la classe Donnes
 class Donnes:
     # Initialisation des variables de la classe
     def __init__(self, titre="", date="", texte=""):
-        self.titre = titre
-        self.date = date
-        self.texte = texte
-        self.docs_bruts=[]
+        self.titre = titre #Le titre du document
+        self.date = date  # La date de modification du document
+        self.texte = texte # Le texte du document
+        self.docs_bruts=[] #liste contenant les données d'arxiv sur deepfake
+        # dictionnaire vide qui prend comme clé les trimestres des années et comme valeur une liste des ocuurences
         self.dictionnaire = {'trim1_2020':[],'trim2_2020':[],'trim3_2020':[],'trim4_2020':[],'trim1_2021':[],'trim2_2021':[],'trim3_2021':[],'trim4_2021':[]}
-    # Fonction     
+    # Fonction qui return le type     
     def get_type(self):
         return self.type
     
@@ -34,21 +38,22 @@ class Donnes:
         # Requête (url pour accéder à la page)
         url = f'http://export.arxiv.org/api/query?search_query=all:{"+".join(query_terms)}&start=0&max_results={max_results}'
         data = urllib.request.urlopen(url)
-        # Format dict (OrderedDict)
+        # Format des données en utf-8
         data = xmltodict.parse(data.read().decode('utf-8'))
-        # Récupération du texte
+        # création de liste vide pour récupérer le texte
         docs = []       
         # Parcourir les données récupérée
         for i, entry in enumerate(data["feed"]["entry"]):
-            # récupérer les textes dont les dates sont supérieures à 2020 
+            # récupérer les textes dont les dates de modifications du document sont supérieures à 2020 
             if (entry["updated"] < '2020-01-01T00:00:00-05:00'):
                 pass
             else : 
-                # Ajout résumés à la liste
+                # Ajouté le texte récupéré à la liste
                 docs.append(entry["summary"].replace("\n", ""))
+                # Ajouté les données scrapper à docs_bruts
                 self.docs_bruts.append( entry)
         ## recupération du titre, date et texte
-        # création de liste vide pour récupérer les données
+        # création de liste vide pour récupérer les données(titre, date, texte)
         collection = []
         # parcourir docs_bruts
         for doc in self.docs_bruts:
@@ -66,7 +71,7 @@ class Donnes:
         Corpus = " ".join(docs)
         return Corpus 
     ## fonction pour le nettoyage du test
-    def process_line(self,ligne, hist):
+    def nettoyage(self,ligne, hist):
         self.ligne = ligne
         self.hist = hist 
         ponctuation = '''!()-[]{};:'"\,<>./?@#$%^&*_~''' 
@@ -82,13 +87,13 @@ class Donnes:
 
             
     ## fonction pour parcourir chaque mot et afficher la fréquence                   
-    def process_file(self,Corpus):
+    def parcourir(self,Corpus):
         self.Corpus = Corpus
         hist = dict()
         #fp = open(Corpus)
         #fp = nom_fichier
         for ligne in Corpus.split():
-            self.process_line(ligne, hist)
+            self.nettoyage(ligne, hist)
         return hist
     
     ## fonction pour compter le nombre total de mot
@@ -102,7 +107,7 @@ class Donnes:
         return len(hist)
     
     ## fonction pour compter le mot le plus fréquent dans le texte
-    def les_plus_frequents(self,hist,num):  
+    def plus_frequents(self,hist,num):  
         self.hist = hist
         t = []
         for key, value in hist.items():
@@ -110,14 +115,16 @@ class Donnes:
 
         t.sort(reverse=True)
         return t
-
-    ## fonction pour voir combien de fois chaque mot apparait par trimestre
+    
+    ## Création d'un dataframe des mots fréquents selon les trimstres de 2020 et 2021.
+    ## La méthode prend en entrée une liste de mots les plus fréquents
+    
     def Séparation(self,Listes_mots):
             ## Création d'un dictionnaire pour la fréquence des mots par trimestres
         #dictionnaire = {'trim1':[],'trim2':[],'trim3':[],'trim4':[]}
-        ## parcourir la liste des mots
-
+        ## Parcourir la liste des mots les plus fréquents
         for v in Listes_mots:
+            #Initialiser les valeurs des trimestres à 0 à chaque nouveau mot.
             Trim1 = 0
             Trim2 = 0
             Trim3 = 0
@@ -132,6 +139,7 @@ class Donnes:
                 # récuperation du texte
                 summary = doc["summary"].replace("\n", "").lower()
                 #print(summary)
+                # Traiter le document en enlévant ce qui est dans la ponctuation
                 ponctuation = '''!()-[]{};:'"\,<>./?@#$%^&*_~''' 
                 for char in ponctuation:
                     summary = summary.replace(char, ' ') 
@@ -140,43 +148,43 @@ class Donnes:
                 
                 ## Récupération des textes du 1 er trimestre
                 if (date > datetime.datetime.strptime('2020-01-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2020-03-31',"%Y-%m-%d")):
-                    ## on recherche les mots de la liste dans le summary du 1 er trimestre
+                    ## on recherche les mots de la liste des mot dans le summary du 1 er trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim1
                     Trim1+=len(re.findall(v,summary))
                 ## Récupération des textes du 1 er trimestre   
                 if (date >= datetime.datetime.strptime('2020-04-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2020-06-30',"%Y-%m-%d")):
-                    ## on recherche le nombre de mots de la liste dans le summary du 2 eme trimestre 
+                    ## on recherche les mots de la liste des mot dans le summary du 2 eme trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim2 
                     Trim2+=len(re.findall(v, summary))
                    
                 ## Récupération des textes du 1 er trimestre    
                 if (date >= datetime.datetime.strptime('2020-07-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2020-09-30',"%Y-%m-%d")):
-                    ## on recherche le nombre de mots de la liste dans le summary du 3 eme trimestre 
+                    ## on recherche les mots de la liste des mot dans le summary du 3 eme trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim3 
                     Trim3+=len(re.findall(v, summary)) 
                 ## Récupération des textes du 1 er trimestre    
                 if (date >= datetime.datetime.strptime('2020-10-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2020-12-31',"%Y-%m-%d")):
-                    ## on recherche le nombre de mots de la liste dans le summary du 4 eme trimestre 
+                    ## on recherche les mots de la liste des mot dans le summary du 4 eme trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim4 
                     Trim4+=len(re.findall(v, summary)) 
                     
                     ## Séparation par trimestre pour l'année 2021
                 ## Récupération des textes du 1 er trimestre    
                 if (date > datetime.datetime.strptime('2021-01-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2021-03-31',"%Y-%m-%d")):
-                    ## on recherche le nombre de mots de la liste dans le summary du 1 er trimestre 
+                    ## on recherche les mots de la liste des mot dans le summary du 1 er trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim1 
                     Trim1+=len(re.findall(v,summary))
                 
                 ## Récupération des textes du 1 er trimestre    
                 if (date >= datetime.datetime.strptime('2021-04-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2021-06-30',"%Y-%m-%d")):
-                    ## on recherche le nombre de mots de la liste dans le summary du 2 eme trimestre 
+                    ## on recherche les mots de la liste des mot dans le summary du 2 eme trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim2
                     Trim2+=len(re.findall(v, summary))
                    
                 ## Récupération des textes du 1 er trimestre    
                 if (date >= datetime.datetime.strptime('2021-07-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2021-09-30',"%Y-%m-%d")):
-                    ## on recherche le nombre de mots de la liste dans le summary du 3 eme trimestre 
+                    ## on recherche les mots de la liste des mot dans le summary du 3 eme trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim3 
                     Trim3+=len(re.findall(v, summary)) 
                 
                 ## Récupération des textes du 1 er trimestre    
                 if (date >= datetime.datetime.strptime('2021-10-01',"%Y-%m-%d")) & (date <= datetime.datetime.strptime('2021-12-31',"%Y-%m-%d")):
-                    ## on recherche le nombre de mots de la liste dans le summary du 4 eme trimestre 
+                    ## on recherche les mots de la liste des mot dans le summary du 4 eme trimestre, on compte le nombre de fois qu'il sont apprus et l'ajoute à Trim4
                     Trim4+=len(re.findall(v, summary))     
-            # ajout au dictionnaire        
+            # ajouter le nombre d'occurences selon les trimestres au dictionnaire        
             self.dictionnaire["trim1_2020"].append(Trim1)
             self.dictionnaire["trim2_2020"].append(Trim2)
             self.dictionnaire["trim3_2020"].append(Trim3)
@@ -187,10 +195,10 @@ class Donnes:
             self.dictionnaire["trim4_2021"].append(Trim4)
         return self.dictionnaire
     ## pour avoir la fréquence des mots les plus fréquences des termes de la liste
-    def computeTF(self,wordDict, decoupe):
+    def compteTF(self,MotDict, decoupe):
         tfDict = {}
-        bagOfWordsCount = len(decoupe)
-        for word, count in wordDict.items():
-            tfDict[word] = count / float(bagOfWordsCount)
+        MotCount = len(decoupe)
+        for word, count in MotDict.items():
+            tfDict[word] = count / float(MotCount)
         return tfDict
            

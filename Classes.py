@@ -132,7 +132,7 @@ class DeepFakeRedditTextAnalysis() :
    #Créer un dataframe des mots fréquents selon le trimstre 2020. La méthode prend en entrée une liste de mots les plus fréquents
     def dataFrameMotsFrequents(self, listeMots):
         for mots in listeMots : #Parcourir la liste des mots les plus fréquents
-            #Initialiser les valeurs des trimestre à 0 à chaque nouveau mot.
+            #Initialiser les valeurs des trimestres à 0 à chaque nouveau mot.
             trim1 = 0
             trim2 = 0
             trim3 = 0
