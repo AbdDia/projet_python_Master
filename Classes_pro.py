@@ -4,6 +4,12 @@ Created on Mon Jan  3 20:07:43 2022
 
 @author: adjou
 """
+#Importer les tkinter pour l'interface 
+import tkinter as tk
+#from pandas import DataFrame
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import pandas as pd
 # Importation des Libraries
 import string
 ## importation de re pour la recherche de mots dans le texte
@@ -193,6 +199,9 @@ class Donnes:
             self.dictionnaire["trim2_2021"].append(Trim2)
             self.dictionnaire["trim3_2021"].append(Trim3)
             self.dictionnaire["trim4_2021"].append(Trim4)
+            
+         #Covertir en dataframe 
+        self.dictionnaire = pd.DataFrame(self.dictionnaire)
         return self.dictionnaire
     ## pour avoir la fréquence des mots les plus fréquences des termes de la liste
     def compteTF(self,MotDict, decoupe):
@@ -201,4 +210,24 @@ class Donnes:
         for word, count in MotDict.items():
             tfDict[word] = count / float(MotCount)
         return tfDict
+    
+    # Méthode de l'interface Tkinter qui prend en entrée la liste des mots les plus frèquents et la datframe retourner par la fonction 
+    def interfaceTkinter(self, Listes_mots, Datas) : 
+        #instanciation de tkinter
+        root= tk.Tk() 
+        #Parcourir la liste des mots 
+        for i, valeur in enumerate(Listes_mots): 
+            #Configuartion de chaque graphique
+            figure = plt.figure(figsize=(3,3))
+            #Ajouter le graph avec subplot
+            axe = figure.add_subplot(111)
+            lines = FigureCanvasTkAgg(figure, root)
+            #lines.show()
+            lines.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            #Faire un lineplot 
+            Datas.iloc[i,].plot(label = valeur, kind='line', legend=True, ax=axe,marker='o', fontsize=10)
+            #Ajouter un titre
+            axe.set_title("Graphique de l\'evolution du mot suivant les trimestres de l\'année 2020")
+          #runner l'application 
+        root.mainloop()     
            

@@ -36,7 +36,7 @@ for freq, mot in t[:num]:
 Listes_mots=['detection','face','videos','image','methods']
 Datas=p.Séparation(Listes_mots)
 #print(Datas)
-
+"""
 #### Frequence des termes de la liste de mots 
 
 ## découpage du document par mot
@@ -51,3 +51,7 @@ for word in decoupe:
 MotDict={'detection':7160,'face':4982,'videos':4429,'image':3646,'methods':4036}
 tfA=p.compteTF(MotDict,decoupe)
 print(tfA)
+"""
+#Afficher l'inteface avec Tkinter
+#Prend en entrée une liste de mots et la valeur retourner par la méthode Séparation()
+p.interfaceTkinter(Listes_mots, Datas)
