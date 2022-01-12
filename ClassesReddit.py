@@ -219,6 +219,7 @@ class  Comparaison_corpus:
         self.d1 = d1.split()
         self.d2 = d2.split()
     
+<<<<<<< HEAD:Classes.py
     ## Pour trouver les mots que les deux corpus ont en commun,     
     def mots_communs(self):
         dictcommuns = dict()
@@ -244,3 +245,9 @@ class  Comparaison_corpus:
             if clef not in self.d1:#tester si le mot n'est pas dans d2
                 dictdiff2[i] = clef
         return dictdiff2
+=======
+        
+        
+        
+        
+>>>>>>> 4674ecf494a2860882a23d8a42941acb52eeaf4f:ClassesReddit.py
